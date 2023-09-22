@@ -9,7 +9,8 @@ public class NewBehaviourScript : MonoBehaviour
     public TMPro.TextMeshProUGUI win,Lose;
     public TMPro.TextMeshProUGUI scoreText; 
     public TMPro.TextMeshProUGUI viewpointsText;
-    public AudioSource SoundBoat,SoundBoatSpeed;
+    public AudioSource soundBoat_windup,soundBoat_speed,soundBoat_winddown;
+    public AudioSource soundFish;
 
    // public Button button; // Reference to the Button component
     public GameObject button;
@@ -35,11 +36,17 @@ public class NewBehaviourScript : MonoBehaviour
     public int Point;
     public float distance;
 
+    int soundMode = 0;
+
+    public FishSpawner Fish;
+
+
     // Start is called before the first frame update
     void Start()
     {
-        SoundBoat.Stop();
-        SoundBoatSpeed.Stop();
+        soundBoat_windup.Stop();
+        soundBoat_speed.Stop();
+        soundBoat_winddown.Stop();
         health=MaxHealth;
         Point=0;
         walkSpeed=40;
@@ -69,16 +76,26 @@ public class NewBehaviourScript : MonoBehaviour
         else
          {speed = Input.GetKey(KeyCode.LeftShift) ? runSpeed : walkSpeed;}
         
-        if(Input.GetKey(KeyCode.UpArrow))
+        if(Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow))
         {
-            SoundBoatSpeed.Play();
-            SoundBoat.Stop();
+            soundBoat_winddown.Stop();
+	    if (soundMode == 0) {
+	    	soundBoat_windup.Play();
+		soundMode = 1;
+	    } else if (soundMode == 1 && !soundBoat_windup.isPlaying) {
+            	soundBoat_speed.Play();
+		soundMode = 2;
+	    }
 
         }
         else
         {
-            SoundBoatSpeed.Stop();
-            SoundBoat.Play();
+            soundBoat_windup.Stop();
+            soundBoat_speed.Stop();
+	    if (soundMode == 1 || soundMode == 2) {
+            	soundBoat_winddown.Play();
+		soundMode = 0;
+	    }
         }
         cameraRotation.y = Input.GetAxis("Horizontal")* speed/14;
         cameraRotation.y = Mathf.Clamp(cameraRotation.y, -90, 90);
@@ -96,23 +113,8 @@ public class NewBehaviourScript : MonoBehaviour
             runSpeed=0;            
             win.text ="win"; 
             Invoke("replay", 4f);
-
-
-
         }
-       
-       
-
-
-
-       
-
     }
-
-
-
-
-    
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -132,6 +134,7 @@ public class NewBehaviourScript : MonoBehaviour
         {
             Point++;UpdateUI();
             Destroy(collision.gameObject);
+	    soundFish.Play();
         }
         
 
@@ -159,8 +162,8 @@ public class NewBehaviourScript : MonoBehaviour
         runSpeed=60;
         scoreText.text = "Score: " + Point.ToString()+"/5";
         viewpointsText.text = "View Points: " + health.ToString()+"/"+MaxHealth.ToString();
+	Fish.SpawnFish(5);
         button.SetActive(false);
-        SoundBoat.Play();
 
 
     }
