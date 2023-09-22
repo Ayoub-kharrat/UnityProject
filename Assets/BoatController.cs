@@ -10,6 +10,7 @@ public class NewBehaviourScript : MonoBehaviour
     public TMPro.TextMeshProUGUI scoreText; 
     public TMPro.TextMeshProUGUI viewpointsText;
     public AudioSource soundBoat_windup,soundBoat_speed,soundBoat_winddown;
+    public AudioSource soundFish;
 
    // public Button button; // Reference to the Button component
     public GameObject button;
@@ -112,23 +113,8 @@ public class NewBehaviourScript : MonoBehaviour
             runSpeed=0;            
             win.text ="win"; 
             Invoke("replay", 4f);
-
-
-
         }
-       
-       
-
-
-
-       
-
     }
-
-
-
-
-    
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -148,6 +134,7 @@ public class NewBehaviourScript : MonoBehaviour
         {
             Point++;UpdateUI();
             Destroy(collision.gameObject);
+	    soundFish.Play();
         }
         
 
